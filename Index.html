@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Get Your Life Together! is a personal dashboard for chores, meal preparation, routines, and budgeting.">
+    <title>Get Your Life Together! | Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="wrap header-inner"><a class="brand" href="Index.html"><strong>Get Your Life Together!</strong></a>
+            <p class="date-label">Monday, September 14</p>
+        </div>
+    </header>
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="wrap nav-inner"><a class="active" href="Index.html" aria-current="page">Home</a><a
+                href="Chores.html">Chore chart</a><a href="Budget.html">Budget</a><a href="Meals.html">Meal prep</a>
+        </div>
+    </nav>
+    <main class="wrap page-main">
+        <section class="welcome">
+            <div>
+                <p class="eyebrow">
+                <h1>Keep the household in view.</h1>
+                <p>Use this simple planner to share the work, spend with intention, and make dinner easier before the
+                    day gets busy.</p>
+            </div><img
+                src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&amp;fit=crop&amp;w=1000&amp;q=85"
+                alt="Bright, organized home workspace with plants and a wooden table">
+        </section>
+        <section class="section-heading">
+            <div>
+                <p class="eyebrow">Your week at a glance</p>
+                <h2>Small steps, visible progress.</h2>
+            </div>
+        </section>
+        <section class="dashboard-grid"><a class="dashboard-card card-green" href="Chores.html"><span
+                    class="card-icon">✓</span><strong>Chore chart</strong><span id="chore-summary">Loading
+                    chores...</span><b class="progress"><i id="chore-progress" class="progress-chores"></i></b></a><a
+                class="dashboard-card card-blue" href="Budget.html"><span class="card-icon">$</span><strong>Budget</strong><span
+                    id="budget-summary">Loading budget...</span><b class="progress"><i id="budget-progress"
+                        class="progress-budget"></i></b></a><a class="dashboard-card card-yellow" href="Meals.html"><span
+                    class="card-icon">+</span><strong>Meal prep</strong><span id="meal-summary">Loading meals...</span><b
+                    class="progress"><i id="meal-progress" class="progress-meals"></i></b></a></section>
+    </main>
+    <footer>
+        <div class="wrap footer-inner"><span>&copy; 2026 Get Your Life Together!</span><a
+                href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=hello@nestplanner.example" target="_blank"
+                rel="noopener">Email a note</a></div>
+    </footer>
+    <script>
+        const money = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        });
+
+        const chores = JSON.parse(localStorage.getItem('personal-chores') || '[]');
+        const meals = JSON.parse(localStorage.getItem('personal-meals') || '[]');
+        const budget = JSON.parse(localStorage.getItem('personal-budget') || '{"overall":900,"spent":614}');
+
+        const completedChores = chores.filter(function(chore) {
+            return chore.done;
+        }).length;
+
+        const chorePercent = chores.length
+            ? Math.round((completedChores / chores.length) * 100)
+            : 0;
+
+        document.querySelector('#chore-summary').textContent = chores.length
+            ? completedChores + ' of ' + chores.length + ' tasks complete'
+            : 'No chores added yet';
+        document.querySelector('#chore-progress').style.width = chorePercent + '%';
+
+        document.querySelector('#meal-summary').textContent = meals.length
+            ? meals.length + (meals.length === 1 ? ' meal planned' : ' meals planned')
+            : 'No meals added yet';
+        document.querySelector('#meal-progress').style.width = (meals.length ? 100 : 0) + '%';
+
+        const remaining = (Number(budget.overall) || 0) - (Number(budget.spent) || 0);
+        const budgetPercent = Number(budget.overall)
+            ? Math.max(0, Math.round((remaining / Number(budget.overall)) * 100))
+            : 0;
+
+        document.querySelector('#budget-summary').textContent = money.format(remaining) + ' left this month';
+        document.querySelector('#budget-progress').style.width = budgetPercent + '%';
+    </script>
+</body>
+
+</html>
