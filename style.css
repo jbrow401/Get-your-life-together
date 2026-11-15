@@ -521,6 +521,8 @@ footer {
 }
 
 .remove-chore {
+    width: auto;
+    justify-self: start;
     padding: .45rem .7rem;
     border: 1px solid #d8aaa0;
     color: #8c4b3d;
