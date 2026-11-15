@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A personal meal preparation planner where meals can be added through a form.">
+    <title>Get Your Life Together! | Meal Prep</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="wrap header-inner"><a class="brand" href="Index.html"><strong>Get Your Life Together!</strong></a>
+            <p class="date-label">Weekly meal plan</p>
+        </div>
+    </header>
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="wrap nav-inner"><a href="Index.html">Home</a><a href="Chores.html">Chore chart</a><a
+                href="Budget.html">Budget</a><a class="active" href="Meals.html" aria-current="page">Meal prep</a></div>
+    </nav>
+    <main class="wrap page-main">
+        <section class="page-heading">
+            <p class="eyebrow">Make dinner easier</p>
+            <h1>Meal prep planner</h1>
+            <p>Add meals below as you decide what works for the week. Your entries stay in this browser and organize
+                themselves by weekday, then breakfast, lunch, and dinner.</p>
+        </section>
+        <section class="meal-layout">
+            <div class="meal-list" id="meal-list">
+                <p class="empty-meals" id="empty-meals">No meals added yet. Use the form below to start your plan.</p>
+            </div>
+            <aside class="grocery"><img
+                    src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&amp;fit=crop&amp;w=800&amp;q=85"
+                    alt="Fresh produce arranged in a grocery basket">
+                <div>
+                    <p class="eyebrow">Grocery list</p>
+                    <h2>Buy once, use twice.</h2>
+                    <ul>
+                        <li>Add ingredients from your meals here.</li>
+                        <li>Group produce, pantry items, and refrigerated foods.</li>
+                        <li>Review the list before your next grocery trip.</li>
+                    </ul>
+                </div>
+            </aside>
+        </section>
+        <form class="reservation-form meal-form" id="meal-form" action="#" method="get">
+            <div>
+                <p class="eyebrow">Add to the week</p>
+                <h2>Add a meal</h2>
+                <p>Capture the details now so the plan can stay current.</p>
+            </div>
+            <div class="form-row"><label for="dish-name">Dish name</label><input id="dish-name" name="dish-name"
+                    type="text" placeholder="For example: vegetable curry" required></div>
+            <div class="form-row split">
+                <div class="form-row"><label for="weekday">Weekday</label><select id="weekday" name="weekday" required>
+                        <option value="">Choose a day</option>
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                        <option>Saturday</option>
+                        <option>Sunday</option>
+                    </select></div>
+                <div class="form-row"><label for="meal-time">Meal</label><select id="meal-time" name="meal-time"
+                        required>
+                        <option value="">Choose one</option>
+                        <option>Breakfast</option>
+                        <option>Lunch</option>
+                        <option>Dinner</option>
+                    </select></div>
+            </div>
+            <div class="form-row"><label for="servings">Servings</label><input id="servings" name="servings"
+                    type="number" min="1" step="1" placeholder="4" required></div>
+            <div class="form-row"><label for="ingredients">Ingredients</label><textarea id="ingredients"
+                    name="ingredients" rows="5" placeholder="List ingredients, one per line or separated by commas."
+                    required></textarea></div><button class="button" type="submit">Add meal to plan</button>
+        </form>
+        <section class="video-panel">
+            <div>
+                <p class="eyebrow">Prep inspiration</p>
+                <h2>Make the kitchen feel ready.</h2>
+                <p>Put on a short nature break while you wash, chop, and portion the ingredients. The goal is not
+                    perfection; it is a kinder next dinner.</p>
+            </div><video controls preload="metadata">
+                <source src="https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4" type="video/mp4">Your browser
+                does not support HTML5 video.
+            </video>
+        </section>
+    </main>
+    <footer>
+        <div class="wrap footer-inner"><span>&copy; 2026 Get Your Life Together!</span></div>
+    </footer>
+    <script>
+        const mealForm = document.querySelector('#meal-form');
+        const mealList = document.querySelector('#meal-list');
+        const emptyMeals = document.querySelector('#empty-meals');
+        const groceryList = document.querySelector('.grocery ul');
+        const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const mealOrder = ['Breakfast', 'Lunch', 'Dinner'];
+        const savedMeals = JSON.parse(localStorage.getItem('personal-meals') || '[]');
+
+        document.querySelector('.grocery h2').textContent = 'Ingredients from your meals.';
+
+        function saveMeals() {
+            localStorage.setItem('personal-meals', JSON.stringify(savedMeals));
+        }
+
+        function renderGroceryList() {
+            const ingredients = [];
+            const ingredientNames = new Set();
+
+            savedMeals.forEach(function(meal) {
+                if (meal.done) {
+                    return;
+                }
+
+                meal.ingredients.split(/[,\n]/).forEach(function(ingredient) {
+                    const cleanIngredient = ingredient.trim();
+                    const key = cleanIngredient.toLowerCase();
+
+                    if (cleanIngredient && !ingredientNames.has(key)) {
+                        ingredientNames.add(key);
+                        ingredients.push(cleanIngredient);
+                    }
+                });
+            });
+
+            ingredients.sort();
+            groceryList.replaceChildren();
+
+            if (ingredients.length === 0) {
+                const emptyItem = document.createElement('li');
+                emptyItem.textContent = 'No ingredients added yet.';
+                groceryList.append(emptyItem);
+                return;
+            }
+
+            ingredients.forEach(function(ingredient) {
+                const item = document.createElement('li');
+                item.textContent = ingredient;
+                groceryList.append(item);
+            });
+        }
+
+        function removeMeal(meal) {
+            const index = savedMeals.indexOf(meal);
+            if (index > -1) {
+                savedMeals.splice(index, 1);
+                saveMeals();
+                renderMeals();
+            }
+        }
+
+        function renderMeals() {
+            mealList.querySelectorAll('.meal-entry').forEach(function(entry) {
+                entry.remove();
+            });
+
+            emptyMeals.hidden = savedMeals.length > 0;
+
+            const sortedMeals = savedMeals.slice().sort(function(first, second) {
+                const dayDifference = dayOrder.indexOf(first.day) - dayOrder.indexOf(second.day);
+                if (dayDifference !== 0) {
+                    return dayDifference;
+                }
+                return mealOrder.indexOf(first.type) - mealOrder.indexOf(second.type);
+            });
+
+            sortedMeals.forEach(function(meal) {
+                const article = document.createElement('article');
+                article.className = 'meal-entry';
+                if (meal.done) {
+                    article.classList.add('meal-complete');
+                }
+
+                const controls = document.createElement('div');
+                controls.className = 'meal-controls';
+
+                const doneLabel = document.createElement('label');
+                doneLabel.className = 'meal-done';
+                const done = document.createElement('input');
+                done.type = 'checkbox';
+                done.checked = Boolean(meal.done);
+
+                done.addEventListener('change', function() {
+                    meal.done = done.checked;
+                    saveMeals();
+                    article.classList.toggle('meal-complete', meal.done);
+                    renderGroceryList();
+                });
+                doneLabel.append(done, document.createTextNode(' Done'));
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'remove-meal';
+                removeButton.textContent = 'Remove';
+                removeButton.addEventListener('click', function() {
+                    removeMeal(meal);
+                });
+
+                controls.append(doneLabel, removeButton);
+
+                const day = document.createElement('span');
+                day.className = 'day';
+                day.textContent = meal.day;
+
+                const title = document.createElement('h2');
+                title.textContent = meal.name;
+
+                const details = document.createElement('p');
+                details.textContent = meal.type + ' - ' + meal.servings + ' servings';
+
+                const ingredients = document.createElement('p');
+                ingredients.textContent = meal.ingredients;
+
+                article.append(controls, day, title, details, ingredients);
+                mealList.append(article);
+            });
+
+            renderGroceryList();
+        }
+
+        mealForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const newMeal = {
+                name: document.querySelector('#dish-name').value.trim(),
+                day: document.querySelector('#weekday').value,
+                type: document.querySelector('#meal-time').value,
+                servings: document.querySelector('#servings').value,
+                ingredients: document.querySelector('#ingredients').value.trim(),
+                done: false
+            };
+
+            savedMeals.push(newMeal);
+            saveMeals();
+            renderMeals();
+            mealForm.reset();
+            document.querySelector('#dish-name').focus();
+        });
+
+        renderMeals();
+    </script>
+</body>
+
+</html>

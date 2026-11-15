@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="A simple household budget planner for tracking planned spending, actual spending, and money remaining.">
+    <title>My Household | Budget</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="wrap header-inner"><a class="brand" href="Index.html"><strong>Get Your Life Together!</strong></a>
+            <p class="date-label">November budget</p>
+        </div>
+    </header>
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="wrap nav-inner"><a href="Index.html">Home</a><a href="Chores.html">Chore chart</a><a class="active"
+                href="Budget.html" aria-current="page">Budget</a><a href="Meals.html">Meal prep</a></div>
+    </nav>
+    <main class="wrap page-main">
+        <section class="page-heading">
+            <p class="eyebrow">Page 4 / plan with clarity</p>
+            <h1>Budget planner</h1>
+            <p>Edit any planned or spent amount below. The totals and remaining amounts update as you type, so this page
+                can reflect the month as it changes.</p>
+        </section>
+        <section class="budget-hero">
+            <div>
+                <p class="eyebrow">November 2026</p>
+                <h2 id="hero-remaining">$286.00 remaining</h2>
+                <p id="hero-message">68% of the household spending plan is still available.</p>
+            </div><img
+                src="https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&amp;fit=crop&amp;w=800&amp;q=85"
+                alt="Calculator, notebook, and pen on a budgeting desk">
+        </section>
+        <section class="budget-cards">
+            <div><span>Planned</span><strong id="planned-total">$900.00</strong><small>Monthly household plan</small>
+            </div>
+            <div><span>Spent</span><strong id="spent-total">$614.00</strong><small>Recorded so far</small></div>
+            <div><span>Remaining</span><strong id="remaining-total">$286.00</strong><small>Available to allocate</small>
+            </div>
+        </section>
+        <section class="table-wrap">
+            <table>
+                <caption>November household spending by category</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Category</th>
+                        <th scope="col">Planned</th>
+                        <th scope="col">Spent</th>
+                        <th scope="col">Remaining</th>
+                    </tr>
+                </thead>
+                <tbody id="budget-rows">
+                    <tr>
+                        <th scope="row">Groceries</th>
+                        <td><input class="budget-input planned-input" id="planned-groceries"
+                                aria-label="Groceries planned amount" type="number" min="0" step="0.01" value="420">
+                        </td>
+                        <td><input class="budget-input spent-input" id="spent-groceries"
+                                aria-label="Groceries spent amount" type="number" min="0" step="0.01" value="298"></td>
+                        <td class="row-remaining">$122.00</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Home supplies</th>
+                        <td><input class="budget-input planned-input" id="planned-home"
+                                aria-label="Home supplies planned amount" type="number" min="0" step="0.01" value="180">
+                        </td>
+                        <td><input class="budget-input spent-input" id="spent-home"
+                                aria-label="Home supplies spent amount" type="number" min="0" step="0.01" value="126">
+                        </td>
+                        <td class="row-remaining">$54.00</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Transport</th>
+                        <td><input class="budget-input planned-input" id="planned-transport"
+                                aria-label="Transport planned amount" type="number" min="0" step="0.01" value="200">
+                        </td>
+                        <td><input class="budget-input spent-input" id="spent-transport"
+                                aria-label="Transport spent amount" type="number" min="0" step="0.01" value="150"></td>
+                        <td class="row-remaining">$50.00</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Shared extras</th>
+                        <td><input class="budget-input planned-input" id="planned-extras"
+                                aria-label="Shared extras planned amount" type="number" min="0" step="0.01" value="100">
+                        </td>
+                        <td><input class="budget-input spent-input" id="spent-extras"
+                                aria-label="Shared extras spent amount" type="number" min="0" step="0.01" value="40">
+                        </td>
+                        <td class="row-remaining">$60.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer>
+        <div class="wrap footer-inner"><span>&copy; 2026 Personal household organizer</span><a
+                href="https://www.consumerfinance.gov/consumer-tools/budgeting/" target="_blank"
+                rel="noopener">Budgeting information</a></div>
+    </footer>
+    <script>
+        const money = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        });
+
+        const budgetHero = document.querySelector('.budget-hero > div');
+        const overallLabel = document.createElement('label');
+        const overallInput = document.createElement('input');
+
+        overallLabel.className = 'overall-budget-label';
+        overallLabel.setAttribute('for', 'overall-budget');
+        overallLabel.textContent = 'Overall planned budget';
+
+        overallInput.className = 'overall-budget-input';
+        overallInput.id = 'overall-budget';
+        overallInput.type = 'number';
+        overallInput.min = '0';
+        overallInput.step = '0.01';
+        overallInput.value = '900';
+
+        budgetHero.append(overallLabel, overallInput);
+
+        document.querySelectorAll('input[type="number"]').forEach(function(input) {
+            input.addEventListener('wheel', function(event) {
+                event.preventDefault();
+            }, { passive: false });
+        });
+
+        function updateBudget() {
+            const planned = Number(overallInput.value) || 0;
+            let spent = 0;
+
+            document.querySelectorAll('#budget-rows tr').forEach(function(row) {
+                const plannedInput = row.querySelector('.planned-input');
+                const spentInput = row.querySelector('.spent-input');
+                const plannedValue = Number(plannedInput.value) || 0;
+                const spentValue = Number(spentInput.value) || 0;
+
+                spent += spentValue;
+                row.querySelector('.row-remaining').textContent = money.format(plannedValue - spentValue);
+            });
+
+            const remaining = planned - spent;
+            const percentage = planned ? Math.round((remaining / planned) * 100) : 0;
+
+            document.querySelector('#planned-total').textContent = money.format(planned);
+            document.querySelector('#spent-total').textContent = money.format(spent);
+            document.querySelector('#remaining-total').textContent = money.format(remaining);
+            document.querySelector('#hero-remaining').textContent = money.format(remaining) + ' remaining';
+            document.querySelector('#hero-message').textContent = percentage + '% of the household spending plan is still available.';
+
+            const budgetState = {
+                overall: planned,
+                spent: spent
+            };
+            localStorage.setItem('personal-budget', JSON.stringify(budgetState));
+        }
+
+        document.querySelectorAll('.budget-input').forEach(function(input) {
+            input.addEventListener('input', updateBudget);
+        });
+
+        overallInput.addEventListener('input', updateBudget);
+        updateBudget();
+    </script>
+</body>
+
+</html>

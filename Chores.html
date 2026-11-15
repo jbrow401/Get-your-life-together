@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="A shared weekly chore chart with clear complete and incomplete status indicators.">
+    <title>Get Your Life Together! | Chore Chart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="wrap header-inner"><a class="brand" href="Index.html"><strong>Get Your Life Together!</strong></a>
+            <p class="date-label"></p>
+        </div>
+    </header>
+    <nav class="site-nav" aria-label="Main navigation">
+        <div class="wrap nav-inner"><a href="Index.html">Home</a><a class="active" href="Chores.html"
+                aria-current="page">Chore chart</a><a href="Budget.html">Budget</a><a href="Meals.html">Meal prep</a>
+        </div>
+    </nav>
+    <main class="wrap page-main">
+        <section class="page-heading">
+            <p class="eyebrow">Shared responsibility</p>
+            <h1>Chore chart</h1>
+            <p>Add the tasks that matter this week, check them off as they are completed, and remove anything that no
+                longer belongs on the list.</p>
+        </section>
+        <section class="split-feature"><img
+                src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&amp;fit=crop&amp;w=900&amp;q=85"
+                alt="Person organizing a clean kitchen counter">
+            <div>
+                <h2>Progress without pressure.</h2>
+                <p>Tasks are grouped by weekday and assigned to a household member so the invisible work becomes shared
+                    work.</p>
+            </div>
+        </section>
+        <section id="weekly-chores" class="list-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">This week</p>
+                    <h2>Household tasks</h2>
+                </div><span class="status-key"><span class="done-dot">✓</span> Done <span class="todo-dot">○</span> To
+                    do</span>
+            </div>
+            <ul class="chore-list" id="chore-list"></ul>
+            <p class="empty-chores" id="empty-chores" hidden>No chores are on the list. Add one below when you are
+                ready.</p>
+        </section>
+        <form class="reservation-form chore-form" id="chore-form" action="#" method="get">
+            <div>
+                <p class="eyebrow">Add to the list</p>
+                <h2>Add a chore</h2>
+                <p>Give the task a day, an owner, and a category so it is easy to find.</p>
+            </div>
+            <div class="form-row"><label for="chore-name">Chore</label><input id="chore-name" name="chore-name"
+                    type="text" placeholder="For example: Clean the bathroom" required></div>
+            <div class="form-row split">
+                <div class="form-row"><label for="chore-day">Weekday</label><select id="chore-day" name="chore-day"
+                        required>
+                        <option value="">Choose a day</option>
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                        <option>Saturday</option>
+                        <option>Sunday</option>
+                    </select></div>
+                <div class="form-row"><label for="chore-person">Assigned to</label><input id="chore-person"
+                        name="chore-person" type="text" placeholder="Name" required></div>
+            </div>
+            <div class="form-row"><label for="chore-category">Category</label><input id="chore-category"
+                    name="chore-category" type="text" placeholder="Kitchen, home, laundry..." required></div><button
+                class="button" type="submit">Add chore</button>
+        </form>
+    </main>
+    <footer>
+        <div class="wrap footer-inner"><span>&copy; 2026 Get Your Life Together!</span></div>
+    </footer>
+    <script>
+        const choreForm = document.querySelector('#chore-form');
+        const choreList = document.querySelector('#chore-list');
+        const emptyChores = document.querySelector('#empty-chores');
+        const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const currentDate = new Date();
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+            'October', 'November', 'December'];
+        document.querySelector('.date-label').textContent = 'Week of ' + monthNames[currentDate.getMonth()] + ' ' +
+            currentDate.getDate();
+
+        const starterChores = [
+            { name: 'Unload the dishwasher', day: 'Monday', person: 'Jacob', category: 'Kitchen', done: true },
+            { name: 'Take bins to the curb', day: 'Monday', person: 'Jackson', category: 'Outside', done: true },
+            { name: 'Wash and fold towels', day: 'Tuesday', person: 'Jacob', category: 'Laundry', done: false },
+            { name: 'Water the window plants', day: 'Wednesday', person: 'Jackson', category: 'Home', done: false },
+            { name: 'Wipe kitchen surfaces', day: 'Thursday', person: 'Jacob', category: 'Kitchen', done: true },
+            { name: 'Vacuum the living room', day: 'Saturday', person: 'Jackson', category: 'Home', done: false }
+        ];
+
+        const savedChores = JSON.parse(localStorage.getItem('personal-chores') || 'null') || starterChores;
+        const legacyAssignments = {
+            'Unload the dishwasher|Monday|Kitchen': { from: 'Jamie', to: 'Jacob' },
+            'Take bins to the curb|Monday|Outside': { from: 'Alex', to: 'Jackson' },
+            'Wash and fold towels|Tuesday|Laundry': { from: 'Morgan', to: 'Jacob' },
+            'Water the window plants|Wednesday|Home': { from: 'Jamie', to: 'Jackson' },
+            'Wipe kitchen surfaces|Thursday|Kitchen': { from: 'Alex', to: 'Jacob' },
+            'Vacuum the living room|Saturday|Home': { from: 'Morgan', to: 'Jackson' }
+        };
+        let migratedChores = false;
+
+        savedChores.forEach(function(chore) {
+            const key = chore.name + '|' + chore.day + '|' + chore.category;
+            const assignment = legacyAssignments[key];
+            if (assignment && chore.person === assignment.from) {
+                chore.person = assignment.to;
+                migratedChores = true;
+            }
+        });
+
+        function saveChores() {
+            localStorage.setItem('personal-chores', JSON.stringify(savedChores));
+        }
+
+        if (migratedChores) {
+            saveChores();
+        }
+
+        function renderChores() {
+            choreList.replaceChildren();
+            emptyChores.hidden = savedChores.length > 0;
+
+            const sortedChores = savedChores.slice().sort(function(first, second) {
+                return dayOrder.indexOf(first.day) - dayOrder.indexOf(second.day);
+            });
+
+            sortedChores.forEach(function(chore) {
+                const row = document.createElement('li');
+                if (chore.done) {
+                    row.className = 'done';
+                }
+
+                const toggle = document.createElement('input');
+                toggle.className = 'status chore-toggle';
+                toggle.type = 'checkbox';
+                toggle.checked = chore.done;
+                toggle.setAttribute('aria-label', 'Mark ' + chore.name + (chore.done ? ' incomplete' : ' complete'));
+
+                toggle.addEventListener('change', function() {
+                    chore.done = toggle.checked;
+                    saveChores();
+                    renderChores();
+                });
+
+                const details = document.createElement('span');
+                const title = document.createElement('strong');
+                const assignment = document.createElement('small');
+                title.textContent = chore.name;
+                assignment.textContent = chore.day + ' - ' + chore.person;
+                details.append(title, assignment);
+
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.textContent = chore.category;
+
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-chore';
+                removeButton.type = 'button';
+                removeButton.textContent = 'Remove';
+
+                removeButton.addEventListener('click', function() {
+                    const index = savedChores.indexOf(chore);
+                    savedChores.splice(index, 1);
+                    saveChores();
+                    renderChores();
+                });
+
+                row.append(toggle, details, tag, removeButton);
+                choreList.append(row);
+            });
+        }
+
+        choreForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const newChore = {
+                name: document.querySelector('#chore-name').value.trim(),
+                day: document.querySelector('#chore-day').value,
+                person: document.querySelector('#chore-person').value.trim(),
+                category: document.querySelector('#chore-category').value.trim(),
+                done: false
+            };
+
+            savedChores.push(newChore);
+            saveChores();
+            renderChores();
+            choreForm.reset();
+            document.querySelector('#chore-name').focus();
+        });
+
+        renderChores();
+    </script>
+</body>
+
+</html>
