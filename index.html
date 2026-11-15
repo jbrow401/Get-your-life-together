@@ -13,7 +13,7 @@
 <body>
     <header class="site-header">
         <div class="wrap header-inner"><a class="brand" href="Index.html"><strong>Get Your Life Together!</strong></a>
-            <p class="date-label">Monday, September 14</p>
+            <p class="date-label"></p>
         </div>
     </header>
     <nav class="site-nav" aria-label="Main navigation">
@@ -49,7 +49,7 @@
     </main>
     <footer>
         <div class="wrap footer-inner"><span>&copy; 2026 Get Your Life Together!</span><a
-                href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=hello@nestplanner.example" target="_blank"
+                href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=jbrow401@asu.edu" target="_blank"
                 rel="noopener">Email a note</a></div>
     </footer>
     <script>
@@ -57,6 +57,13 @@
             style: 'currency',
             currency: 'USD'
         });
+        const currentDate = new Date();
+        document.querySelector('.date-label').textContent =
+            currentDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            });
 
         const chores = JSON.parse(localStorage.getItem('personal-chores') || '[]');
         const meals = JSON.parse(localStorage.getItem('personal-meals') || '[]');
